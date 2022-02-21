@@ -36,7 +36,7 @@ func main() {
 
 	svc := service.New(cfg, repo)
 
-	server := api.New(svc, ":8080")
+	server := api.New(svc, cfg.ServerPort)
 
 	errChan := make(chan error, 1)
 	signalChan := make(chan os.Signal, 1)

@@ -7,8 +7,9 @@ import (
 )
 
 type Config struct {
-	JWTSecret string `json:"jwt_secret"`
-	PgConfig  struct {
+	ServerPort string `json:"server_port"`
+	JWTSecret  string `json:"jwt_secret"`
+	PgConfig   struct {
 		Host string `json:"host"`
 		Port string `json:"port"`
 		User string `json:"user"`

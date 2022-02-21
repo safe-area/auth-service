@@ -8,7 +8,7 @@ import (
 )
 
 type Service interface {
-	Auth(token string) error
+	Auth(token string) (string, error)
 	SignIn(name, pass string) (string, error)
 	SignUp(name, pass string) error
 }
@@ -25,16 +25,19 @@ type service struct {
 	repo repository.Repository
 }
 
-func (s *service) Auth(token string) error {
-	return nil
+func (s *service) Auth(token string) (string, error) {
+	return s.parseToken(token)
 }
 
 func (s *service) SignIn(name, pass string) (string, error) {
 	h := sha1.New()
 	h.Write([]byte(pass))
 	pass = hex.EncodeToString(h.Sum(nil))
-	// TODO return token against uuid
-	return s.repo.SignIn(name, pass)
+	userId, err := s.repo.SignIn(name, pass)
+	if err != nil {
+		return "", err
+	}
+	return s.createToken(userId)
 }
 
 func (s *service) SignUp(name, pass string) error {

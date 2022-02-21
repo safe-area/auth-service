@@ -37,7 +37,7 @@ func New(svc service.Service, port string) *Server {
 
 	s.r.POST("/api/v1/sign-in", s.SignInHandler)
 	s.r.POST("/api/v1/sign-up", s.SignUpHandler)
-	//s.r.POST("/api/v1/auth", s.TestHandler)
+	s.r.POST("/api/v1/auth", s.AuthHandler)
 
 	return s
 }
@@ -47,7 +47,7 @@ func (s *Server) SignInHandler(ctx *fasthttp.RequestCtx, ps fasthttprouter.Param
 	var userData models.UserData
 	err := jsoniter.Unmarshal(body, &userData)
 	if err != nil {
-		logrus.Errorf("TestHandler: error while unmarshalling request: %s", err)
+		logrus.Errorf("SignInHandler: error while unmarshalling request: %s", err)
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
 		return
 	}
@@ -83,6 +83,31 @@ func (s *Server) SignUpHandler(ctx *fasthttp.RequestCtx, ps fasthttprouter.Param
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
 		return
 	}
+	ctx.SetStatusCode(fasthttp.StatusOK)
+}
+
+func (s *Server) AuthHandler(ctx *fasthttp.RequestCtx, ps fasthttprouter.Params) {
+	body := ctx.PostBody()
+	var tokenData models.TokenData
+	err := jsoniter.Unmarshal(body, &tokenData)
+	if err != nil {
+		logrus.Errorf("SignUpHandler: error while unmarshalling request: %s", err)
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		return
+	}
+	userId, err := s.svc.Auth(tokenData.Token)
+	if err != nil {
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		return
+	}
+	bs, err := jsoniter.Marshal(models.AuthResponse{UserId: userId})
+	if err != nil {
+		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		return
+	}
+	ctx.Write(bs)
+	ctx.SetContentType("application/json")
+	ctx.SetStatusCode(fasthttp.StatusOK)
 	ctx.SetStatusCode(fasthttp.StatusOK)
 }
 

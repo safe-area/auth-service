@@ -3,6 +3,7 @@ module github.com/safe-area/auth-service
 go 1.16
 
 require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/json-iterator/go v1.1.12
 	github.com/lab259/cors v0.2.0
 	github.com/lib/pq v1.10.4
